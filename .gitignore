@@ -45,6 +45,8 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.ruff_cache/
+.pdm-build/
 
 # Environments
 .env
@@ -65,7 +67,7 @@ venv.bak/
 .idea/
 
 # Signature cache
-signature_cache.json 
+signature_cache.json
 
 temp/
 
