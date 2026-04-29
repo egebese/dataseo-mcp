@@ -1,314 +1,127 @@
-<div align="center">
+# DataSEO MCP
 
-# SEO Research MCP
-
-**Free SEO research tools for AI-powered IDEs**
-
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![MCP](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io/)
-
-[Features](#-features) • [Installation](#-installation) • [IDE Setup](#-ide-setup-guides) • [API Reference](#-api-reference) • [Contributing](#-contributing) • [Credits](#-credits)
-
-</div>
-
----
+DataSEO MCP is a Model Context Protocol server for practical SEO research in AI
+assistants. It combines Ahrefs free SEO data, CAPTCHA-provider fallback, and
+optional OpenRouter-powered query planning behind a small set of MCP tools.
 
 > [!CAUTION]
-> ## ⚠️ Educational Use Only
->
-> **This project is for educational and research purposes only.**
->
-> - This tool interfaces with third-party services (Ahrefs, CapSolver)
-> - Users must comply with all applicable terms of service
-> - The authors do not endorse any use that violates third-party ToS
-> - Use responsibly and at your own risk
->
-> By using this software, you acknowledge that you understand and accept these terms.
+> This project is for educational and research purposes only. It interacts with
+> third-party services including Ahrefs, CapSolver, Anti-Captcha, and OpenRouter.
+> Users are responsible for complying with all applicable terms of service.
 
----
+## Features
 
-## 🎯 What is this?
+| Tool | Purpose | Example prompt |
+| --- | --- | --- |
+| `get_backlinks_list` | Backlink overview and top backlink rows | "Show backlinks for suparank.io" |
+| `keyword_generator` | Keyword and question ideas | "Find SaaS SEO keywords for onboarding" |
+| `get_traffic` | Organic traffic estimates | "Estimate traffic for ege.md" |
+| `keyword_difficulty` | KD and SERP snapshot | "Check difficulty for AI SEO tools" |
+| `ai_search_queries` | AI query ideas by search intent | "Generate AI search queries for SaaS SEO" |
+| `domain_overview` | One-domain backlink + traffic summary | "Summarize suparank.io" |
+| `compare_domains` | Compare 2-5 domains | "Compare suparank.io and ahrefs.com" |
+| `backlink_opportunities` | Competitor backlink source gaps | "Find backlink gaps for my domain" |
+| `seo_content_brief` | SERP + AI-assisted content brief | "Create a content brief for AI SEO audit" |
 
-SEO Research MCP brings powerful SEO research capabilities directly into your AI coding assistant. Using the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/), it connects your IDE to Ahrefs' SEO data, allowing you to:
+DataSEO MCP is maintained by [Ege Bese](https://ege.md). For AI SEO and
+rank-tracking workflows, see [Suparank](https://suparank.io).
 
-- Research competitor backlinks while coding
-- Generate keyword ideas without leaving your editor
-- Analyze traffic patterns for any website
-- Check keyword difficulty before creating content
-
----
-
-## ✨ Features
-
-| Feature | Description | Example Use |
-|---------|-------------|-------------|
-| **🔗 Backlink Analysis** | Domain rating, anchor text, edu/gov links | "Show me backlinks for competitor.com" |
-| **🔑 Keyword Research** | Generate ideas from seed keywords | "Find keywords related to 'python tutorial'" |
-| **📊 Traffic Analysis** | Monthly traffic, top pages, countries | "What's the traffic for example.com?" |
-| **📈 Keyword Difficulty** | KD score with full SERP breakdown | "How hard is 'best laptop 2025' to rank for?" |
-
----
-
-## 📋 Prerequisites
-
-Before you start, you'll need:
-
-1. **Python 3.10 or higher**
-   ```bash
-   python --version  # Should be 3.10+
-   ```
-
-2. **CapSolver API Key** (for CAPTCHA solving)
-
-   👉 [Get your API key here](https://dashboard.capsolver.com/passport/register?inviteCode=VK9BLtwYlZxi)
-
----
-
-## 📦 Installation
-
-### Option 1: From PyPI (Recommended)
+## Installation
 
 ```bash
-pip install seo-mcp
+uvx --python 3.10 dataseo-mcp
 ```
 
-Or using `uv`:
-```bash
-uv pip install seo-mcp
-```
-
-### Option 2: From Source
+For local development:
 
 ```bash
-git clone https://github.com/egebese/seo-research-mcp.git
-cd seo-research-mcp
-pip install -e .
+git clone https://github.com/egebese/dataseo-mcp.git
+cd dataseo-mcp
+uv sync
+uv run dataseo-mcp
 ```
 
----
+The legacy `seo-mcp` command is still exposed as a compatibility alias.
 
-## 🛠️ IDE Setup Guides
+## Configuration
 
-Choose your IDE and follow the setup instructions:
+At least one CAPTCHA provider is required for Ahrefs-backed tools:
 
-<details>
-<summary><h3>🟣 Claude Desktop</h3></summary>
+```bash
+export CAPSOLVER_API_KEY="your-capsolver-key"
+# or
+export ANTICAPTCHA_API_KEY="your-anticaptcha-key"
+```
 
-#### Step 1: Open Config File
+If both are configured, CapSolver is tried first and Anti-Captcha is used as
+fallback. AI tools are optional:
 
-1. Open Claude Desktop
-2. Go to **Settings** → **Developer** → **Edit Config**
+```bash
+export OPENROUTER_API_KEY="your-openrouter-key"
+export OPENROUTER_MODEL="openai/gpt-4o-mini"  # optional
+```
 
-#### Step 2: Add Configuration
+Useful runtime overrides:
 
-Add this to your `claude_desktop_config.json`:
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DATASEO_CACHE_DIR` | `~/.cache/dataseo-mcp` | Signature cache location |
+| `DATASEO_REQUEST_TIMEOUT` | `30` | HTTP timeout in seconds |
+| `DATASEO_MAX_POLLING_ATTEMPTS` | `120` | CAPTCHA polling cap |
+| `OPENROUTER_BASE_URL` | `https://openrouter.ai/api/v1` | OpenAI-compatible AI endpoint |
+
+## MCP Setup
+
+Claude Desktop / Cursor-style config:
 
 ```json
 {
   "mcpServers": {
-    "seo-research": {
+    "dataseo": {
       "command": "uvx",
-      "args": ["--python", "3.10", "seo-mcp"],
+      "args": ["--python", "3.10", "dataseo-mcp"],
       "env": {
-        "CAPSOLVER_API_KEY": "YOUR_API_KEY_HERE"
+        "CAPSOLVER_API_KEY": "YOUR_CAPSOLVER_KEY",
+        "ANTICAPTCHA_API_KEY": "YOUR_ANTICAPTCHA_KEY",
+        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY"
       }
     }
   }
 }
 ```
 
-#### Step 3: Restart & Verify
-
-1. Restart Claude Desktop
-2. Look for the **hammer/tools icon** in the bottom-right corner
-
-**📁 Config file locations:**
-| OS | Path |
-|----|------|
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-
-</details>
-
-<details>
-<summary><h3>🔵 Claude Code (CLI)</h3></summary>
-
-#### Option A: Quick Setup (CLI)
+Claude Code:
 
 ```bash
-# Add the MCP server
-claude mcp add seo-research --scope user -- uvx --python 3.10 seo-mcp
-
-# Set your API key
-export CAPSOLVER_API_KEY="YOUR_API_KEY_HERE"
+claude mcp add dataseo --scope user -- uvx --python 3.10 dataseo-mcp
 ```
 
-#### Option B: Config File
-
-Add to `~/.claude.json`:
-
-```json
-{
-  "mcpServers": {
-    "seo-research": {
-      "command": "uvx",
-      "args": ["--python", "3.10", "seo-mcp"],
-      "env": {
-        "CAPSOLVER_API_KEY": "YOUR_API_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-#### Verify Installation
-
-```bash
-claude mcp list
-```
-
-</details>
-
-<details>
-<summary><h3>🟢 Cursor</h3></summary>
-
-#### Global Setup (All Projects)
-
-Create `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "seo-research": {
-      "command": "uvx",
-      "args": ["--python", "3.10", "seo-mcp"],
-      "env": {
-        "CAPSOLVER_API_KEY": "YOUR_API_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-#### Project Setup (Single Project)
-
-Create `.cursor/mcp.json` in your project root with the same content.
-
-#### Verify Installation
-
-1. Go to **File** → **Preferences** → **Cursor Settings**
-2. Select **MCP** in the sidebar
-3. Check that `seo-research` appears under **Available Tools**
-
-</details>
-
-<details>
-<summary><h3>🌊 Windsurf</h3></summary>
-
-#### Step 1: Open Settings
-
-- **Mac:** `Cmd + Shift + P` → "Open Windsurf Settings"
-- **Windows/Linux:** `Ctrl + Shift + P` → "Open Windsurf Settings"
-
-#### Step 2: Add Configuration
-
-Navigate to **Cascade** → **MCP Servers** → **Edit raw mcp_config.json**:
-
-```json
-{
-  "mcpServers": {
-    "seo-research": {
-      "command": "uvx",
-      "args": ["--python", "3.10", "seo-mcp"],
-      "env": {
-        "CAPSOLVER_API_KEY": "YOUR_API_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-**📁 Config location:** `~/.codeium/windsurf/mcp_config.json`
-
-</details>
-
-<details>
-<summary><h3>💜 VS Code (GitHub Copilot)</h3></summary>
-
-> ⚠️ Requires VS Code 1.102+ with GitHub Copilot
-
-#### Setup
-
-Create `.vscode/mcp.json` in your workspace:
+VS Code MCP config:
 
 ```json
 {
   "servers": {
-    "seo-research": {
+    "dataseo": {
       "command": "uvx",
-      "args": ["--python", "3.10", "seo-mcp"],
+      "args": ["--python", "3.10", "dataseo-mcp"],
       "env": {
-        "CAPSOLVER_API_KEY": "YOUR_API_KEY_HERE"
+        "CAPSOLVER_API_KEY": "YOUR_CAPSOLVER_KEY"
       }
     }
   }
 }
 ```
 
-#### Activate
+Only one CAPTCHA provider key is required. Add `OPENROUTER_API_KEY` only when
+you want AI-assisted query generation or content briefs.
 
-1. Open the `.vscode/mcp.json` file
-2. Click the **Start** button that appears
-3. In Chat view, click **Tools** to toggle MCP tools
-4. Use `#tool_name` in prompts to invoke tools
-
-</details>
-
-<details>
-<summary><h3>⚡ Zed</h3></summary>
-
-#### Setup
-
-Add to your Zed `settings.json`:
-
-```json
-{
-  "context_servers": {
-    "seo-research": {
-      "command": {
-        "path": "uvx",
-        "args": ["--python", "3.10", "seo-mcp"],
-        "env": {
-          "CAPSOLVER_API_KEY": "YOUR_API_KEY_HERE"
-        }
-      }
-    }
-  }
-}
-```
-
-#### Verify
-
-1. Open **Agent Panel** settings
-2. Check the indicator dot next to `seo-research`
-3. **Green dot** = Server is active
-
-</details>
-
----
-
-## 📖 API Reference
+## API Reference
 
 ### `get_backlinks_list(domain)`
 
-Get backlink data for any domain.
+Returns:
 
-```python
-# Input
-domain: str  # e.g., "example.com"
-
-# Output
+```json
 {
   "overview": {
     "domainRating": 76,
@@ -317,10 +130,10 @@ domain: str  # e.g., "example.com"
   },
   "backlinks": [
     {
-      "anchor": "Example link",
+      "anchor": "DataSEO MCP",
       "domainRating": 76,
-      "title": "Page title",
-      "urlFrom": "https://source.com/page",
+      "title": "Example page",
+      "urlFrom": "https://source.example/page",
       "urlTo": "https://example.com/page",
       "edu": false,
       "gov": false
@@ -329,166 +142,84 @@ domain: str  # e.g., "example.com"
 }
 ```
 
----
+### `keyword_generator(keyword, country="us", search_engine="Google")`
 
-### `keyword_generator(keyword, country?, search_engine?)`
+Returns keyword and question ideas in the existing `label` / `value` shape.
 
-Generate keyword ideas from a seed keyword.
+### `get_traffic(domain_or_url, country="None", mode="subdomains")`
 
-```python
-# Input
-keyword: str        # Seed keyword
-country: str        # Default: "us"
-search_engine: str  # Default: "Google"
+Returns traffic history, traffic summary, top pages, countries, and keywords.
+The legacy `costMontlyAvg` field is preserved and `costMonthlyAvg` is also
+included.
 
-# Output
-[
-  {
-    "keyword": "example keyword",
-    "volume": 1000,
-    "difficulty": 45
-  }
-]
-```
+### `keyword_difficulty(keyword, country="us")`
 
----
+Returns a keyword difficulty score and organic SERP rows with available metrics.
 
-### `get_traffic(domain_or_url, country?, mode?)`
+### `ai_search_queries(keyword, count=10, model="openai/gpt-4o-mini", language="en")`
 
-Estimate search traffic for a website.
+Returns deduplicated AI-generated queries:
 
-```python
-# Input
-domain_or_url: str  # Domain or full URL
-country: str        # Default: "None" (all countries)
-mode: str           # "subdomains" | "exact"
-
-# Output
+```json
 {
-  "traffic": {
-    "trafficMonthlyAvg": 50000,
-    "costMontlyAvg": 25000
-  },
-  "top_pages": [...],
-  "top_countries": [...],
-  "top_keywords": [...]
+  "keyword": "ai seo audit",
+  "queries": [
+    {"query": "what is an AI SEO audit", "intent": "informational"},
+    {"query": "best AI SEO audit tools", "intent": "commercial"}
+  ],
+  "model_used": "openai/gpt-4o-mini",
+  "total_queries": 2
 }
 ```
 
----
+`count` is validated from 1 to 50. Valid intents are `informational`,
+`commercial`, `transactional`, and `navigational`.
 
-### `keyword_difficulty(keyword, country?)`
+### Additional Tools
 
-Get keyword difficulty score with SERP analysis.
+- `domain_overview(domain, country="None")`: backlink overview plus traffic
+  summary for one domain.
+- `compare_domains(domains, country="None")`: compares 2-5 unique domains.
+- `backlink_opportunities(domain, competitors)`: lists competitor backlink
+  sources not present in the target sample.
+- `seo_content_brief(keyword, country="us", count=12, model, language)`: combines
+  keyword difficulty, SERP rows, AI search queries, and recommended content
+  angles.
 
-```python
-# Input
-keyword: str   # Keyword to analyze
-country: str   # Default: "us"
+## Architecture
 
-# Output
-{
-  "difficulty": 45,
-  "serp": [...]
-}
-```
+`server.py` is intentionally thin. The implementation is split into:
 
----
+- `services.py`: MCP tool orchestration and public return shapes.
+- `schemas.py`: Pydantic validation and normalization.
+- `captcha.py`: CapSolver / Anti-Captcha fallback with bounded polling.
+- `backlinks.py`, `keywords.py`, `traffic.py`: Ahrefs endpoint adapters.
+- `ai.py`: OpenRouter/OpenAI-compatible query generation.
+- `cache.py`: JSON signature cache under `~/.cache/dataseo-mcp` by default.
 
-## ⚙️ How It Works
+All external HTTP boundaries are mocked in tests.
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│     Your     │     │   CapSolver  │     │    Ahrefs    │     │   Formatted  │
-│    AI IDE    │────▶│   (CAPTCHA)  │────▶│     API      │────▶│    Results   │
-└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-```
-
-1. **Request** → Your AI assistant calls an MCP tool
-2. **CAPTCHA** → CapSolver handles Cloudflare verification
-3. **Data** → Ahrefs API returns SEO data
-4. **Response** → Formatted results appear in your IDE
-
----
-
-## 🐛 Troubleshooting
-
-| Problem | Solution |
-|---------|----------|
-| "CapSolver API key error" | Check `CAPSOLVER_API_KEY` is set correctly |
-| Rate limiting | Wait a few minutes, reduce request frequency |
-| No results | Domain may not be indexed by Ahrefs |
-| Server not appearing | Restart your IDE after config changes |
-| Connection timeout | Check your internet connection |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how you can help:
-
-### Ways to Contribute
-
-- **🐛 Report Bugs** - Found an issue? [Open a bug report](https://github.com/egebese/seo-research-mcp/issues/new?template=bug_report.md)
-- **💡 Suggest Features** - Have an idea? [Request a feature](https://github.com/egebese/seo-research-mcp/issues/new?template=feature_request.md)
-- **📝 Improve Docs** - Fix typos, clarify instructions, add examples
-- **🔧 Submit Code** - Bug fixes, new features, optimizations
-
-### Development Setup
+## Development
 
 ```bash
-# Clone the repo
-git clone https://github.com/egebese/seo-research-mcp.git
-cd seo-research-mcp
-
-# Install dependencies
 uv sync
-
-# Run locally
-python main.py
+uv run pytest -q
+uv run ruff check .
+uv run python -m compileall -q src
+uv run python -c "from seo_mcp.server import main"
 ```
 
-### Pull Request Process
+## Troubleshooting
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to your branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+| Problem | Fix |
+| --- | --- |
+| No CAPTCHA provider configured | Set `CAPSOLVER_API_KEY` or `ANTICAPTCHA_API_KEY` |
+| CAPTCHA solving failed | Check provider balance, key validity, and rate limits |
+| AI tool returns missing key error | Set `OPENROUTER_API_KEY` |
+| Empty SEO response | Domain or keyword may not be indexed by the upstream source |
+| Old command no longer documented | Use `dataseo-mcp`; `seo-mcp` still works as alias |
 
-### Code Guidelines
+## License
 
-- Keep code simple and readable
-- Add comments for complex logic
-- Test your changes before submitting
-- Follow existing code style
-
----
-
-## 📊 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=egebese/seo-research-mcp&type=Date)](https://star-history.com/#egebese/seo-research-mcp&Date)
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** with an educational use notice.
-
-See [LICENSE](LICENSE) for full details.
-
----
-
-## 🙏 Credits
-
-This project is a fork of [seo-mcp](https://github.com/cnych/seo-mcp) by [@cnych](https://github.com/cnych).
-
-Special thanks to the original author for creating this tool.
-
----
-
-<div align="center">
-
-**⭐ If this helps your SEO research, consider giving it a star! ⭐**
-
-</div>
+MIT with educational-use notice. Original fork attribution is preserved in
+[LICENSE](LICENSE).

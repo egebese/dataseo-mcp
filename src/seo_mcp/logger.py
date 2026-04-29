@@ -1,17 +1,18 @@
-"""
-A general logging module providing a unified logging function
-"""
+"""Safe logging helpers for DataSEO MCP."""
 import logging
 import os
 from datetime import datetime
 
+DEBUG = os.environ.get("DEBUG", "").strip().lower() in {"1", "true", "yes", "on"}
 
-DEBUG = os.environ.get("DEBUG", "False")
 
-
-def setup_logger(name: str, log_dir: str = "logs", level: int = logging.INFO) -> logging.Logger:
+def setup_logger(
+    name: str,
+    log_dir: str = "logs",
+    level: int = logging.INFO,
+) -> logging.Logger:
     """
-    Setup a logger for the given name
+    Setup a logger for the given name.
     
     Args:
         name: The name of the logger
@@ -21,8 +22,10 @@ def setup_logger(name: str, log_dir: str = "logs", level: int = logging.INFO) ->
     Returns:
         logging.Logger: The configured logger
     """
+    logger = logging.getLogger(name)
     if not DEBUG:
-        return logging.getLogger(name)
+        logger.addHandler(logging.NullHandler())
+        return logger
     
     # Create the log directory
     os.makedirs(log_dir, exist_ok=True)
@@ -31,7 +34,6 @@ def setup_logger(name: str, log_dir: str = "logs", level: int = logging.INFO) ->
     log_file = os.path.join(log_dir, f"{name}_{datetime.now().strftime('%Y%m%d')}.log")
     
     # Create the logger
-    logger = logging.getLogger(name)
     logger.setLevel(level)
     
     # If the logger already has handlers, don't add a new handler
@@ -45,7 +47,9 @@ def setup_logger(name: str, log_dir: str = "logs", level: int = logging.INFO) ->
         console_handler.setLevel(level)
         
         # Create the formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
         

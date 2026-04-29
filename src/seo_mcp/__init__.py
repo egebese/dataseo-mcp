@@ -1,5 +1,3 @@
-"""
-SEO MCP - A FastMCP service for retrieving SEO information for any domain using Ahrefs' data.
-"""
+"""DataSEO MCP - SEO research tools for MCP clients."""
 
-__version__ = "0.2.4"
+__version__ = "0.3.0"

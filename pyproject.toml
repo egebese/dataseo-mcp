@@ -3,12 +3,12 @@ requires = ["pdm-backend>=2.4.0"]
 build-backend = "pdm.backend"
 
 [project]
-name = "seo-mcp"
-version = "0.2.4"
-description = "A free SEO tool MCP (Model Control Protocol) service based on Ahrefs data. Includes features such as backlinks, keyword ideas, and more."
+name = "dataseo-mcp"
+version = "0.3.0"
+description = "DataSEO MCP provides SEO research tools for backlinks, keywords, traffic, SERP difficulty, competitor analysis, and AI search query planning."
 readme = "README.md"
 authors = [
-    {name = "cnych", email = "ych_1024@163.com"}
+    {name = "Ege Bese"}
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -21,16 +21,28 @@ dependencies = [
     "fastmcp>=2.0.0",
     "requests>=2.32.3",
     "pydantic>=2.5.0",
-    "pydantic-core>=2.14.0"
+    "pydantic-core>=2.14.0",
+    "openai>=1.0.0"
 ]
 
 [project.scripts]
+dataseo-mcp = "seo_mcp.server:main"
 seo-mcp = "seo_mcp.server:main"
 
 [project.urls]
-"Homepage" = "https://github.com/cnych/seo-mcp"
-"Bug Tracker" = "https://github.com/cnych/seo-mcp/issues"
+"Homepage" = "https://github.com/egebese/dataseo-mcp"
+"Bug Tracker" = "https://github.com/egebese/dataseo-mcp/issues"
 
-[tool.setuptools]
-packages = ["seo_mcp"]
-package-dir = {"" = "src"}
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+]
+
+[tool.ruff]
+line-length = 92
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S", "TRY", "RUF"]
+ignore = ["S101", "TRY003"]
