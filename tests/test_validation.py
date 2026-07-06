@@ -37,6 +37,6 @@ def test_compare_domains_dedupes_and_requires_two_unique_domains() -> None:
 
 def test_schemas_normalize_supported_inputs() -> None:
     assert BacklinksInput(domain="https://SUPARANK.io/pricing").domain == "suparank.io"
-    traffic = TrafficInput(domain_or_url="ege.md/about", country="all", mode="exact")
-    assert traffic.domain_or_url == "ege.md/about"
+    traffic = TrafficInput(domain_or_url="egebese.com/about", country="all", mode="exact")
+    assert traffic.domain_or_url == "egebese.com/about"
     assert traffic.country == "None"

@@ -81,10 +81,10 @@ Input: "Analyze backlinks for suparank.io"
 Action: Call `get_backlinks_list(domain="suparank.io")`, then summarize domain
 rating, referring domains, strongest sources, anchors, and link-building angles.
 
-Input: "Compare these: suparank.io, ahrefs.com, semrush.com"
+Input: "Compare suparank.io with its competitors"
 
-Action: Call `compare_domains(domains=[...])`, then report traffic/backlink
-differences and practical positioning notes.
+Action: Call `compare_domains(domains=["suparank.io", ...])`, then report
+traffic/backlink differences and practical positioning notes.
 
 Input: "Create a brief for AI SEO audit"
 
