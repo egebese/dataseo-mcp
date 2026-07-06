@@ -57,6 +57,20 @@ def _map_difficulty_label_to_int(label: str | int | float | None) -> int:
     return difficulty_map.get(str(label).lower().strip(), _coerce_int(label))
 
 
+# v4 free-tool labels are enum tokens ("MoreThanOneThousand"); map to the bucket
+# lower bound. Older numeric-range labels ("1K-10K") still handled below.
+_VOLUME_LABEL_MAP = {
+    "zero": 0,
+    "morethanten": 10,
+    "morethanonehundred": 100,
+    "morethanfivehundred": 500,
+    "morethanonethousand": 1000,
+    "morethantenthousand": 10000,
+    "morethanonehundredthousand": 100000,
+    "morethanonemillion": 1_000_000,
+}
+
+
 def _map_volume_label_to_int(label: str | int | float | None) -> int:
     """Map Ahrefs volume labels onto integer estimates."""
 
@@ -66,6 +80,9 @@ def _map_volume_label_to_int(label: str | int | float | None) -> int:
         return _coerce_int(label)
 
     label_str = str(label).strip()
+    mapped = _VOLUME_LABEL_MAP.get(label_str.lower().replace(" ", ""))
+    if mapped is not None:
+        return mapped
     if "-" in label_str:
         parts = label_str.split("-", 1)
         return _coerce_int(parts[0])
@@ -130,7 +147,7 @@ def get_keyword_ideas(
             "captcha": token,
             "searchEngine": search_engine,
             "country": country,
-            "keyword": ["Some", keyword],
+            "keyword": keyword,
         },
         headers={"Content-Type": "application/json"},
         timeout=get_settings().request_timeout,

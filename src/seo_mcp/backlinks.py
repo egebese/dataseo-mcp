@@ -90,7 +90,11 @@ def format_backlinks(
     if not isinstance(payload, dict):
         return []
 
-    backlinks = payload.get("topBacklinks", {}).get("backlinks", [])
+    # New v4 shape: rows live directly under payload["backlinks"]. Fall back to
+    # the older topBacklinks.backlinks nesting so cached/old responses still parse.
+    backlinks = payload.get("backlinks")
+    if not isinstance(backlinks, list):
+        backlinks = payload.get("topBacklinks", {}).get("backlinks", [])
     if not isinstance(backlinks, list):
         return []
 
@@ -127,7 +131,7 @@ def get_backlinks(
     response = post_json(
         AHREFS_BACKLINKS_LIST_URL,
         json={
-            "reportType": "TopBacklinks",
+            "reportType": ["TopBacklinks"],
             "signedInput": {
                 "signature": signature,
                 "input": {

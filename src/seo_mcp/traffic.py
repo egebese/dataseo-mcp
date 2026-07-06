@@ -30,8 +30,10 @@ def check_traffic(
             "input": json.dumps(
                 {
                     "captcha": token,
-                    "country": country,
-                    "protocol": "None",
+                    # Ahrefs requires a valid country + protocol="https"
+                    # (rejects "None"/"Both").
+                    "country": country if country and country != "None" else "us",
+                    "protocol": "https",
                     "mode": mode,
                     "url": domain_or_url,
                 }
